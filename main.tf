@@ -69,13 +69,13 @@ resource "aws_instance" "web" {
   key_name               = aws_key_pair.default.key_name
 
   user_data = <<-EOF
-              #!/bin/bash
-              apt update -y
-              apt install -y apache2 mysql-client
-	      systemctl enable apache2
-              systemctl start apache2
-              echo "<h1>Welcome to INFR2670 Web server!!!</h1>" > /var/www/html/index.html
-              EOF
+		#!/bin/bash
+		apt update -y
+		apt install -y apache2 mysql-client
+		systemctl enable apache2
+		systemctl start apache2
+		echo "<h1>Welcome to INFR2670 Web server!!!</h1>" > /var/www/html/index.html
+		EOF
 
   tags = {
     Name = "web-server"
