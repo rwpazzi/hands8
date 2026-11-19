@@ -3,25 +3,20 @@ provider "aws" {
 }
 
 ##################################
-# Get Ubuntu 24.04 AMI
+# Get Ubuntu 26.04 AMI
 ##################################
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
-  }
+data "aws_ssm_parameter" "ubuntu" {
+  name = "/aws/service/canonical/ubuntu/server/26.04/stable/current/amd64/hvm/ebs-gp3/ami-id"
 }
-
 
 ##################################
 # Key Pair (must exist locally)
 ##################################
 resource "aws_key_pair" "default" {
-  key_name   = "terraform-key"
-  public_key = file("~/.ssh/id_rsa.pub")
+  key_name   = "terra_key"
+  public_key = file("~/.ssh/keyname.pub")
 }
+
 
 ##################################
 # Security Group (SSH, HTTP)
@@ -62,7 +57,7 @@ resource "aws_security_group" "web_sg" {
 # EC2: Web Server (Apache)
 ##################################
 resource "aws_instance" "web" {
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = data.aws_ssm_parameter.ubuntu.value
   instance_type          = "t3.micro"
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   associate_public_ip_address = true
@@ -86,7 +81,7 @@ resource "aws_instance" "web" {
 # EC2: DB Server (MySQL)
 ##################################
 resource "aws_instance" "db" {
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = data.aws_ssm_parameter.ubuntu.value
   instance_type          = "t3.micro"
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   associate_public_ip_address = true
